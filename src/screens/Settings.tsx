@@ -1,12 +1,14 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { describeSync, useStore } from "../store";
-import { Button, Card, CardTitle, Field, ScreenHeader } from "../ui";
+import { Button, Card, CardTitle, Field, ScreenHeader, ShopMark } from "../ui";
 import { SHEET_COLUMNS } from "../types";
+import { compressLogo } from "../lib/format";
 import { isValidSheetUrl, pingSheet, pullRows } from "../lib/sheets";
 
 export default function Settings({ go }: { go: (p: string) => void }) {
   const { settings, setSettings, syncAll, syncing, pending, clearAll, notify, jobs } = useStore();
   const [s, setS] = useState(settings);
+  const logoInput = useRef<HTMLInputElement>(null);
 
   const urlOk = !s.sheetUrl.trim() || isValidSheetUrl(s.sheetUrl);
   const clean = () => ({ ...s, sheetUrl: s.sheetUrl.trim(), sheetSecret: s.sheetSecret.trim() });
@@ -51,6 +53,26 @@ export default function Settings({ go }: { go: (p: string) => void }) {
         <Card>
           <CardTitle icon="store">Shop</CardTitle>
           <div className="flex flex-col gap-space-md">
+            <div>
+              <div className="font-label text-label-sm text-on-surface-variant mb-2">Logo</div>
+              <div className="flex items-center gap-space-md">
+                <div className="h-14 min-w-14 px-3 rounded-lg bg-white/10 border border-white/10 flex items-center justify-center">
+                  <ShopMark name={s.shopName} logo={s.logo} className="h-9" />
+                </div>
+                <input ref={logoInput} type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  e.target.value = "";
+                  if (!file) return;
+                  try { setS({ ...s, logo: await compressLogo(file) }); }
+                  catch (err) { notify(err instanceof Error ? err.message : "Could not use that image"); }
+                }} />
+                <div className="flex flex-col gap-space-sm flex-1">
+                  <Button type="button" variant="secondary" icon="upload" className="!w-auto" onClick={() => logoInput.current?.click()}>{s.logo ? "Replace logo" : "Upload logo"}</Button>
+                  {s.logo && <Button type="button" variant="ghost" icon="close" className="!w-auto" onClick={() => setS({ ...s, logo: "" })}>Remove logo</Button>}
+                </div>
+              </div>
+              <p className="text-body-sm text-on-surface-variant mt-space-sm">Shown in the header on this browser. A PNG with a transparent background sits cleanly on the blue page. Save settings after you change it.</p>
+            </div>
             <Field label="Shop name" value={s.shopName} onChange={(e) => setS({ ...s, shopName: e.target.value })} />
             <Field label="Shop phone (on invoices)" type="tel" value={s.shopPhone} onChange={(e) => setS({ ...s, shopPhone: e.target.value })} />
             <Field label="Default technician" value={s.technician} onChange={(e) => setS({ ...s, technician: e.target.value })} />

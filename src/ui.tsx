@@ -1,6 +1,12 @@
 import type { ButtonHTMLAttributes, InputHTMLAttributes, ReactNode, TextareaHTMLAttributes } from "react";
 import type { Status } from "./types";
 
+export function ShopMark({ name, logo, className = "h-8" }: { name: string; logo?: string; className?: string }) {
+  const label = name.trim() || "Shop";
+  if (logo) return <img src={logo} alt={label} className={`${className} w-auto max-w-[180px] object-contain object-left`} />;
+  return <span className="font-headline text-headline-md text-white truncate">{label}</span>;
+}
+
 export const Icon = ({ name, className = "", fill = false }: { name: string; className?: string; fill?: boolean }) => (
   <span className={`material-symbols-outlined ${fill ? "fill" : ""} ${className}`} aria-hidden>{name}</span>
 );

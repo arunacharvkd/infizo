@@ -55,6 +55,28 @@ export const compressImage = (file: File, max = 900, quality = 0.7) =>
     img.src = url;
   });
 
+/** Scale a shop logo down so it can be stored with the settings on this browser. PNG keeps a transparent background. */
+export const compressLogo = (file: File, max = 480) =>
+  new Promise<string>((resolve, reject) => {
+    if (!file.type.startsWith("image/")) { reject(new Error("Choose an image file")); return; }
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      const s = Math.min(1, max / Math.max(img.width, img.height));
+      const c = document.createElement("canvas");
+      c.width = Math.max(1, Math.round(img.width * s));
+      c.height = Math.max(1, Math.round(img.height * s));
+      c.getContext("2d")!.drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(url);
+      const png = file.type === "image/png" || file.type === "image/webp";
+      let out = c.toDataURL(png ? "image/png" : "image/jpeg", png ? undefined : 0.85);
+      if (out.length > 350_000) out = c.toDataURL("image/jpeg", 0.7);
+      resolve(out);
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("Could not read that image")); };
+    img.src = url;
+  });
+
 /** Escape text before placing it in generated HTML (invoices). */
 export const esc = (v: unknown) =>
   String(v ?? "").replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[ch]!);

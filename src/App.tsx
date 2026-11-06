@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { describeSync, useStore } from "./store";
 import { Gate, useRelock } from "./Gate";
-import { Icon, IconButton } from "./ui";
+import { Icon, IconButton, ShopMark } from "./ui";
 import Dashboard from "./screens/Dashboard";
 import Intake from "./screens/Intake";
 import JobDetail from "./screens/JobDetail";
@@ -53,6 +53,8 @@ function Shell() {
 
   const activeTab = path.startsWith("/job/") || path.startsWith("/handover/") ? "" : path;
 
+  useEffect(() => { document.title = settings.shopName.trim() || "Shop"; }, [settings.shopName]);
+
   const doSync = async () => {
     if (!(settings.sheetUrl && settings.sheetSecret)) { go("/settings"); return; }
     const r = await syncAll();
@@ -70,7 +72,10 @@ function Shell() {
   return (
     <div className="app-frame min-h-[100dvh] lg:grid lg:grid-cols-[240px_1fr]">
       <aside className="hidden lg:flex flex-col sticky top-0 h-[100dvh] border-r border-white/10 bg-[#070c18]/35 px-4 py-6">
-        <img src={`${import.meta.env.BASE_URL}logo.png`} alt="Infizo" className="h-8 w-auto self-start mix-blend-screen" />
+        <div className="min-w-0">
+          <ShopMark name={settings.shopName} logo={settings.logo} />
+          {settings.logo && <div className="font-label text-label-sm text-white/70 truncate mt-1">{settings.shopName}</div>}
+        </div>
         <div className="mt-3">{syncBtn}</div>
         <nav className="mt-8 flex flex-col gap-1">
           {SIDE.map((n) => {
@@ -96,7 +101,7 @@ function Shell() {
       <div className="relative min-h-[100dvh] pb-24 lg:pb-10">
         {!nested && (
           <header className="sticky top-0 z-40 h-16 px-margin flex items-center justify-between bg-[#163fa8]/55 backdrop-blur-xl border-b border-white/10 lg:hidden">
-            <img src={`${import.meta.env.BASE_URL}logo.png`} alt="Infizo" className="h-7 w-auto mix-blend-screen" />
+            <ShopMark name={settings.shopName} logo={settings.logo} className="h-7" />
             <div className="flex items-center gap-space-sm">
               {syncBtn}
               <IconButton icon="lock" label="Lock" onClick={relock} className="!w-9 !h-9 !border-white/15 !bg-white/10" />

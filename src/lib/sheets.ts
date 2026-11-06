@@ -1,8 +1,8 @@
 import type { SheetRow } from "./merge";
 import { finalBill, type Job } from "../types";
 
-export interface Settings { sheetUrl: string; sheetSecret: string; appLock: boolean; technician: string; shopName: string; shopPhone: string }
-export const defaultSettings: Settings = { sheetUrl: "", sheetSecret: "", appLock: true, technician: "Amit Verma", shopName: "Infizo", shopPhone: "" };
+export interface Settings { sheetUrl: string; sheetSecret: string; appLock: boolean; technician: string; shopName: string; shopPhone: string; logo: string }
+export const defaultSettings: Settings = { sheetUrl: "", sheetSecret: "", appLock: true, technician: "Amit Verma", shopName: "Infizo", shopPhone: "", logo: "" };
 
 const isData = (s: string) => s.startsWith("data:");
 
