@@ -112,12 +112,12 @@ export default function JobDetail({ id, go }: { id: string; go: (p: string) => v
           <div className="mt-space-sm font-label text-label-md text-primary flex items-center gap-1"><Icon name="local_shipping" className="!text-[16px]" />Due: {fmtDelivery(job.expectedDelivery)}</div>
         </Card>
 
-        <div>
+        <div className="lg:col-span-2 min-w-0">
           <div className="flex items-center justify-between mb-space-sm">
             <Label>Status lifecycle</Label>
             <span className="font-label text-label-md text-primary">Stage {stage + 1} of 6</span>
           </div>
-          <div className="flex items-center gap-1 overflow-x-auto no-scrollbar -mx-margin px-margin pb-1">
+          <div className="flex items-center gap-1 overflow-x-auto no-scrollbar pb-1">
             {STATUSES.map((s, i) => {
               const cur = i === stage, past = i < stage;
               return (
