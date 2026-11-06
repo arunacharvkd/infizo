@@ -27,7 +27,7 @@ export default function Settings({ go }: { go: (p: string) => void }) {
   return (
     <div className="pb-8">
       <ScreenHeader title="Settings" sub="Google Sheets · shop" onBack={() => go("/")} />
-      <div className="px-margin py-space-lg flex flex-col gap-space-lg">
+      <div className="px-margin py-space-lg flex flex-col gap-space-lg lg:max-w-3xl">
         <Card>
           <CardTitle icon="table_view" hint={pending ? `${pending} unsynced` : "All synced"} hintClass={pending ? "text-amber" : "text-tertiary"}>Google Sheet</CardTitle>
           <Field label="Apps Script web app URL" icon="link" mono value={s.sheetUrl} onChange={(e) => setS({ ...s, sheetUrl: e.target.value })} placeholder="https://script.google.com/macros/s/…/exec" autoCapitalize="off" className={urlOk ? "" : "[&>div]:!border-error"} />
@@ -39,6 +39,13 @@ export default function Settings({ go }: { go: (p: string) => void }) {
             <Button variant="secondary" onClick={test} disabled={!s.sheetUrl.trim() || !s.sheetSecret.trim()}>Test</Button>
             <Button variant="secondary" icon="sync" busy={syncing} onClick={async () => { if (!save()) return; await new Promise((r) => setTimeout(r, 50)); const r = await syncAll(); notify(describeSync(r)); }}>Sync all</Button>
           </div>
+        </Card>
+
+        <Card>
+          <CardTitle icon="lock">Shop lock</CardTitle>
+          <p className="text-body-sm text-on-surface-variant">
+            The shop password is required every time this page is opened. Tickets and the Google Sheet secret saved on this browser stay encrypted until it is entered.
+          </p>
         </Card>
 
         <Card>

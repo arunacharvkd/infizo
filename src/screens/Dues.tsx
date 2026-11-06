@@ -11,12 +11,12 @@ export default function Dues({ go }: { go: (p: string) => void }) {
   return (
     <div className="pb-28">
       <ScreenHeader title="Outstanding" sub={`${rows.length} open`} onBack={() => go("/")} />
-      <div className="px-margin py-space-lg flex flex-col gap-3">
-        <div className="glass rounded-xl p-space-lg">
+      <div className="px-margin py-space-lg grid grid-cols-1 lg:grid-cols-2 gap-3">
+        <div className="glass rounded-xl p-space-lg lg:col-span-2">
           <div className="font-label text-label-md text-white/70">Still to collect</div>
           <div className="font-headline text-headline-xl-mobile text-white mt-1">{inr(total)}</div>
         </div>
-        {rows.length === 0 && <EmptyState icon="check_circle" title="Nothing outstanding" sub="Every ticket with an amount is marked fully paid." />}
+        {rows.length === 0 && <EmptyState className="lg:col-span-2" icon="check_circle" title="Nothing outstanding" sub="Every ticket with an amount is marked fully paid." />}
         {rows.map(({ job, due }) => (
           <article key={job.id} className="glass rounded-xl p-4">
             <button type="button" onClick={() => go(`/job/${job.id}`)} className="w-full text-left">

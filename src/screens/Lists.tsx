@@ -16,9 +16,9 @@ export function Completed({ go }: { go: (p: string) => void }) {
         <div className="font-body text-body-md text-white/70 mt-2">{list.length} delivered</div>
       </div>
       <SearchBar value={q} onChange={setQ} />
-      <div className="flex flex-col gap-space-md">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
         {list.map((j) => <JobCard key={j.id} job={j} onOpen={() => go(`/job/${j.id}`)} />)}
-        {list.length === 0 && <EmptyState icon="inventory_2" title="Nothing delivered yet" sub="Jobs move here after the customer handover is completed." />}
+        {list.length === 0 && <EmptyState className="lg:col-span-2" icon="inventory_2" title="Nothing delivered yet" sub="Jobs move here after the customer handover is completed." />}
       </div>
     </div>
   );
@@ -34,12 +34,12 @@ export function Lookup({ go }: { go: (p: string) => void }) {
         <h1 className="font-headline text-headline-xl-mobile text-white">Lookup</h1>
         <div className="font-body text-body-md text-white/70 mt-2">Ticket, name, phone, or model</div>
       </div>
-      <div className="sticky top-16 z-20 py-1">
+      <div className="sticky top-16 lg:top-0 z-20 py-1 bg-[#12306f]/80 lg:bg-transparent backdrop-blur-xl lg:backdrop-blur-none">
         <SearchBar value={q} onChange={setQ} placeholder="Search all tickets…" />
       </div>
-      <div className="flex flex-col gap-space-md">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
         {list.map((j) => <JobCard key={j.id} job={j} onOpen={() => go(`/job/${j.id}`)} />)}
-        {list.length === 0 && <EmptyState icon="search_off" title="No tickets found" sub="Check the spelling or try the last 4 digits of the phone." />}
+        {list.length === 0 && <EmptyState className="lg:col-span-2" icon="search_off" title="No tickets found" sub="Check the spelling or try the last 4 digits of the phone." />}
       </div>
     </div>
   );

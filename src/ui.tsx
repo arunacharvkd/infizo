@@ -159,9 +159,9 @@ export const Thumb = ({ src, className = "" }: { src: string; className?: string
     </div>
   );
 
-export function EmptyState({ icon, title, sub }: { icon: string; title: string; sub?: string }) {
+export function EmptyState({ icon, title, sub, className = "" }: { icon: string; title: string; sub?: string; className?: string }) {
   return (
-    <div className="flex flex-col items-center text-center py-12 text-on-surface-variant gap-2">
+    <div className={`flex flex-col items-center text-center py-12 text-on-surface-variant gap-2 ${className}`}>
       <Icon name={icon} className="!text-[40px] text-outline" />
       <div className="font-headline text-body-lg text-on-surface">{title}</div>
       {sub && <div className="text-body-sm max-w-[260px]">{sub}</div>}

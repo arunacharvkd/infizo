@@ -19,7 +19,7 @@ export default function Close({ go }: { go: (p: string) => void }) {
     <div className="pb-28">
       <ScreenHeader title="Today" sub={today} onBack={() => go("/")} />
       <div className="px-margin py-space-lg flex flex-col gap-3">
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           <Stat label="Taken in" value={String(takenIn.length)} />
           <Stat label="Delivered" value={String(delivered.length)} />
           <Stat label="Collected on those deliveries" value={inr(collected)} />

@@ -42,7 +42,7 @@ export default function Dashboard({ go }: { go: (p: string) => void }) {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {TILES.map((t) => {
           const sel = tile === t.key;
           return (
@@ -76,10 +76,10 @@ export default function Dashboard({ go }: { go: (p: string) => void }) {
 
       <SearchBar value={q} onChange={setQ} />
 
-      <div className="flex flex-col gap-3">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
         {list.map((j) => <JobCard key={j.id} job={j} onOpen={() => go(`/job/${j.id}`)} />)}
         {list.length === 0 && jobs.length === 0 && !connected ? (
-          <div className="flex flex-col gap-space-md">
+          <div className="flex flex-col gap-space-md lg:col-span-2">
             <EmptyState icon="table_view" title="Connect your Google Sheet" sub="Your repair tickets live in the Sheet. Add its URL and secret in Settings and they'll load here." />
             <Button icon="settings" onClick={() => go("/settings")}>Open Settings</Button>
           </div>

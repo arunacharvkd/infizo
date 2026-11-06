@@ -68,7 +68,7 @@ export default function JobDetail({ id, go }: { id: string; go: (p: string) => v
         right={<><StatusPill status={job.status} /><IconLink icon="call" label="Call customer" tone="green" href={`tel:${digits(job.phone)}`} /></>}
       />
 
-      <div className="px-margin py-space-lg flex flex-col gap-space-lg">
+      <div className="px-margin py-space-lg grid grid-cols-1 lg:grid-cols-2 gap-space-lg lg:items-start">
         <Card>
           <CardTitle icon="photo_camera" hint={`${[job.photoFront, job.photoLabel].filter(Boolean).length} assets attached`} hintClass="text-on-surface-variant">Intake inspection</CardTitle>
           <div className="grid grid-cols-2 gap-space-sm">
@@ -209,7 +209,7 @@ export default function JobDetail({ id, go }: { id: string; go: (p: string) => v
         </Card>
       </div>
 
-      <div className="action-dock flex flex-col gap-space-sm">
+      <div className="action-dock flex flex-col lg:flex-row lg:justify-end gap-space-sm lg:[&>*]:w-auto lg:[&>*]:min-w-[220px]">
         {job.status === "Ready for Delivery" && <Button variant="success" icon="how_to_reg" onClick={() => go(`/handover/${job.id}`)}>Start Customer Handover</Button>}
         <a href={whatsappStatus(job, settings.shopName)} target="_blank" rel="noreferrer" className="min-h-[48px] w-full rounded-lg flex items-center justify-center gap-space-sm font-headline font-semibold text-body-md bg-surface-container border border-outline-variant active:scale-[0.98]"><Icon name="chat" className="text-tertiary" />Send WhatsApp Status Update</a>
         {!locked && <Button onClick={sync} busy={busy} icon="sync" variant={dirty || entry.trim() ? "primary" : "secondary"}>Update Status &amp; Sync Sheet</Button>}

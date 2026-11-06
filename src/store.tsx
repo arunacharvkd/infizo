@@ -2,13 +2,22 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import type { Job } from "./types";
 import { SheetError, defaultSettings, isValidSheetUrl, pullRows, pushJob, type Settings } from "./lib/sheets";
 import { isDemoJob, mergeRows } from "./lib/merge";
+import { openVault, seal, unseal } from "./lib/vault";
 
-const JOBS_KEY = "shoplog.jobs.v1";
-const SET_KEY = "shoplog.settings.v1";
+const JOBS_KEY = "shoplog.jobs.v2";
+const SET_KEY = "shoplog.settings.v2";
+const JOBS_LEGACY = "shoplog.jobs.v1";
+const SET_LEGACY = "shoplog.settings.v1";
 
-const load = <T,>(key: string, fallback: T): T => {
-  try { const v = localStorage.getItem(key); return v ? (JSON.parse(v) as T) : fallback; } catch { return fallback; }
-};
+async function readSealed<T>(key: CryptoKey, storageKey: string, legacyKey: string, fallback: T): Promise<T> {
+  const cur = localStorage.getItem(storageKey);
+  if (cur) {
+    try { return JSON.parse(await unseal(key, cur)) as T; } catch { return fallback; }
+  }
+  const old = localStorage.getItem(legacyKey);
+  if (!old) return fallback;
+  try { return JSON.parse(old) as T; } catch { return fallback; }
+}
 
 export interface SyncResult { ok: number; failed: number; added: number; updated: number; removed: number; pullFailed: boolean; error?: string; sheetRows?: number; sheetTab?: string }
 
@@ -42,9 +51,11 @@ interface Ctx {
 const StoreCtx = createContext<Ctx>(null!);
 export const useStore = () => useContext(StoreCtx);
 
-export function StoreProvider({ children }: { children: ReactNode }) {
-  const [jobs, setJobs] = useState<Job[]>(() => load<Job[]>(JOBS_KEY, []).filter((x) => !isDemoJob(x)));
-  const [settings, setSettingsState] = useState<Settings>(() => ({ ...defaultSettings, ...load(SET_KEY, {}) }));
+export function StoreProvider({ children, password }: { children: ReactNode; password: string }) {
+  const vaultKey = useRef<CryptoKey | null>(null);
+  const [ready, setReady] = useState(false);
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [settings, setSettingsState] = useState<Settings>(defaultSettings);
   const [syncing, setSyncing] = useState(false);
   const [lastSync, setLastSync] = useState<{ at: number; text: string; ok: boolean } | null>(null);
   const [toast, setToast] = useState("");
@@ -61,14 +72,38 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    try { localStorage.setItem(JOBS_KEY, JSON.stringify(jobs)); }
-    catch { notify("Storage full — sync to Google Sheets to free up photo space"); }
-  }, [jobs, notify]);
+    let live = true;
+    (async () => {
+      const key = await openVault(password);
+      const loadedJobs = (await readSealed<Job[]>(key, JOBS_KEY, JOBS_LEGACY, [])).filter((x) => x && !isDemoJob(x));
+      const loadedSettings = { ...defaultSettings, ...(await readSealed<Partial<Settings>>(key, SET_KEY, SET_LEGACY, {})) };
+      if (!live) return;
+      vaultKey.current = key;
+      setJobs(loadedJobs);
+      setSettingsState(loadedSettings);
+      setReady(true);
+    })();
+    return () => { live = false; };
+  }, [password]);
 
-  const setSettings = (s: Settings) => {
-    setSettingsState(s);
-    try { localStorage.setItem(SET_KEY, JSON.stringify(s)); } catch { /* ignore */ }
-  };
+  useEffect(() => {
+    const key = vaultKey.current;
+    if (!ready || !key) return;
+    seal(key, JSON.stringify(jobs))
+      .then((v) => { localStorage.setItem(JOBS_KEY, v); localStorage.removeItem(JOBS_LEGACY); })
+      .catch(() => notify("Storage full — sync to Google Sheets to free up photo space"));
+  }, [jobs, ready, notify]);
+
+  const setSettings = (s: Settings) => setSettingsState(s);
+
+  useEffect(() => {
+    const key = vaultKey.current;
+    if (!ready || !key) return;
+    seal(key, JSON.stringify(settings)).then((v) => {
+      localStorage.setItem(SET_KEY, v);
+      localStorage.removeItem(SET_LEGACY);
+    }).catch(() => { /* ignore */ });
+  }, [settings, ready]);
 
   const upsertLocal = (j: Job) =>
     setJobs((prev) => (prev.some((p) => p.id === j.id) ? prev.map((p) => (p.id === j.id ? j : p)) : [j, ...prev]));
@@ -149,12 +184,14 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   // sync once when the app opens, so rows typed into the Sheet show up without tapping anything
   useEffect(() => {
-    if (!true || !canSync()) return;
+    if (!ready || !canSync()) return;
     syncAll().then((r) => { if (r.ok || r.added || r.updated || r.removed || r.pullFailed) notify(describeSync(r), r.pullFailed ? 8000 : 3200); });
-  }, []);
+  }, [ready]);
 
   const clearAll = () => setJobs([]);
   const pending = useMemo(() => jobs.filter((j) => !j.synced).length, [jobs]);
+
+  if (!ready) return <div className="app-frame min-h-[100dvh]" />;
 
   return (
     <StoreCtx.Provider value={{ lastSync, jobs, settings, setSettings, nextTicket, saveJob, syncAll, clearAll, syncing, pending, toast, notify }}>

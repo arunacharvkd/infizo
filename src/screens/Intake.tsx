@@ -113,7 +113,7 @@ export default function Intake({ go }: { go: (p: string) => void }) {
         </div>
       </div>
 
-      <div className="px-margin py-space-lg flex flex-col gap-space-lg">
+      <div className="px-margin py-space-lg grid grid-cols-1 lg:grid-cols-2 gap-space-lg">
         <Card>
           <CardTitle icon="photo_camera" hint="2 photos">Hardware inspection</CardTitle>
           <div className="flex gap-space-sm">
@@ -242,7 +242,7 @@ export default function Intake({ go }: { go: (p: string) => void }) {
         </Card>
       </div>
 
-      <div className="action-dock">
+      <div className="action-dock lg:flex lg:justify-end lg:[&>*]:w-auto lg:[&>*]:min-w-[280px]">
         <Button onClick={submit} busy={busy} icon="table_view">Log Service to Google Sheets</Button>
       </div>
     </div>

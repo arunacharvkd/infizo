@@ -91,7 +91,7 @@ export default function Handover({ id, go }: { id: string; go: (p: string) => vo
   return (
     <div className="pb-56">
       <ScreenHeader onBack={() => go(`/job/${job.id}`)} title="Handover & Delivery" sub={`#${job.id}`} />
-      <div className="px-margin py-space-lg flex flex-col gap-space-lg">
+      <div className="px-margin py-space-lg grid grid-cols-1 lg:grid-cols-2 gap-space-lg lg:items-start">
         <Card accent>
           <div className="flex items-start justify-between gap-2">
             <div>
@@ -141,7 +141,7 @@ export default function Handover({ id, go }: { id: string; go: (p: string) => vo
       </div>
 
       {!done && (
-        <div className="action-dock flex flex-col gap-space-sm">
+        <div className="action-dock flex flex-col lg:flex-row lg:justify-end gap-space-sm lg:[&>*]:w-auto lg:[&>*]:min-w-[220px]">
           <Button onClick={complete} busy={busy} disabled={!ready} icon="table_view">Complete Handover &amp; Update Sheet</Button>
         </div>
       )}
